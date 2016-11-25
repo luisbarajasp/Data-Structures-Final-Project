@@ -1,0 +1,5 @@
+# Ignore files with .o
+*.o
+
+#Ignore the executable file
+graphs

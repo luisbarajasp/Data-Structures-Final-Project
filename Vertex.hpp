@@ -20,6 +20,9 @@ class Vertex {
         T data;
         bool visited;
         LinkedList<Edge<T, W> *> edges;
+        //Variables for the SFML implementation
+        int x;
+        int y;
     public:
         Vertex();
         Vertex(const T & _data);
@@ -31,6 +34,11 @@ class Vertex {
         bool isVisited() { return visited; }
         LinkedList<Edge<T, W> *> * getEdges() { return &edges; }
         void addEdge(Edge<T, W> * _edge);
+
+        void setX(int _x) { x = _x; }
+        int getX() { return x; }
+        void setY(int _y) { y = _y; }
+        int getY() { return y; }
 
         template <class R, class S>
         friend std::ostream & operator<< (std::ostream & stream, const Vertex<R, S> & vertex);
