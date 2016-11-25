@@ -43,6 +43,7 @@ class Graph {
         Vertex<T, W> * getStart() { return start; }
         void setStart(Vertex<T, W> * _start) { start = _start; }
         void setStart(const T & _data);
+        int getLengthVertices() { return vertices.getLength(); }
         void printBreadthFirst();
         void printDepthFirst();
         LinkedList<Vertex<T, W> *> * findPath(Vertex<T, W> * origin, Vertex<T, W> * destination);
@@ -421,7 +422,7 @@ InfoNode<T, W> * Graph<T, W>::getCheapest(LinkedList<InfoNode<T, W> *> * dijkstr
         }
         list_node = list_node->getNext();
     }
-    return lowest_vertex; 
+    return lowest_vertex;
 }
 
 // Recover the path from origin to destination

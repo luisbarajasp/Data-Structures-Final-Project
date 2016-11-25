@@ -62,6 +62,13 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     description.setColor(sf::Color::Black);
     description.setPosition(sf::Vector2f(20, 10));
 
+    // Configure the dataInput object
+    sf::Text dataInput;
+    dataInput.setFont(font);
+    dataInput.setCharacterSize(18);
+    dataInput.setColor(sf::Color::Black);
+    dataInput.setPosition(sf::Vector2f(20, 52));
+
     textDescription = "Graphs";
 
     //Variable for accepting the input text
@@ -76,6 +83,7 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     while (window->isOpen())
     {
         description.setString(textDescription);
+        dataInput.setString(inputData);
 
         sf::Event event;
         while (window->pollEvent(event))
@@ -87,8 +95,6 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                     break;
                 case sf::Event::MouseButtonReleased:
                 {
-                    std::cout << "Clicked!" << '\n';
-
                     /*if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                         && Mouse::getPosition(window).x >= rect1.getPosition().x
                         && Mouse::getPosition(window).x <= rect1.getPosition().x + rect1.getSize().x
@@ -100,16 +106,6 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
 
                       // Change the text displayed
                       textDescription = "Enter the data for the Vertex: ";
-
-                      //Draw the vertex in the place pressed
-                      int x = position.x - 10;
-                      int y = position.y - 10;
-
-                      sf::CircleShape circle(10.f);
-                      circle.setFillColor(sf::Color(33,53,156));
-                      circle.setPosition(x,y);
-
-                      window->draw(circle);
 
                       // Toggle the boolean so it accepts input
                       createAVertex = true;
@@ -123,13 +119,13 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                         if ( event.text.unicode < 0x80 ) {
                             char letter = (char) event.text.unicode;
                             inputData += letter;
-                            std::cout << inputData << '\n';
                         }
                         //Submit the entered text
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return)){
                             createVertex(position, graph, window, inputData);
                             createAVertex = false;
                             inputData = "";
+                            textDescription = "Graphs";
                         }
                     }
                     break;
@@ -143,6 +139,8 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
         window->draw(rec);
 
         window->draw(description);
+        window->draw(dataInput);
+
         window->display();
 
     }
@@ -153,6 +151,26 @@ void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf:
 
     int x = position.x - 10;
     int y = position.y - 10;
+
+
+    //Draw the vertex in the place pressed
+    sf::CircleShape circle(10.f);
+    circle.setFillColor(sf::Color(33,53,156));
+    circle.setPosition(x,y);
+    window->draw(circle);
+
+    //Configure the font
+    sf::Font font;
+    font.loadFromFile("Akashi.ttf");
+
+    //Draw its name next to it
+    sf::Text name;
+    name.setFont(font);
+    name.setCharacterSize(12);
+    name.setColor(sf::Color(33,53,156));
+    name.setPosition(sf::Vector2f(x-5, y-15));
+    name.setString(inputData);
+    window->draw(name);
 
     //Rectangle for clearing the title
     sf::RectangleShape rec(sf::Vector2f(1024,80));
@@ -165,8 +183,6 @@ void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf:
     newVertex->setY(y);
 
     graph->addVertex(newVertex);
-
-    graph->printBreadthFirst();
 
 }
 
