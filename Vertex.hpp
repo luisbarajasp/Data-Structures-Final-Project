@@ -49,6 +49,8 @@ Vertex<T, W>::Vertex()
 {
     visited = false;
     edges = nullptr;
+    x = 0;
+    y = 0;
 }
 
 template <class T, class W>
@@ -57,6 +59,8 @@ Vertex<T, W>::Vertex(const T & _data)
     data = _data;
     visited = false;
     edges = nullptr;
+    x = 0;
+    y = 0;
 }
 
 template <class T, class W>
