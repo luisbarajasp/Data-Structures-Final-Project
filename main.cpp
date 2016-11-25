@@ -15,7 +15,7 @@
 
 void configureSFML(sf::VideoMode *desktop, sf::RenderWindow *window);
 void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph);
-void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & inputData);
+void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & textUserInteraction);
 
 int main(){
 
@@ -54,22 +54,26 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     sf::Font font;
     font.loadFromFile("Akashi.ttf");
 
-    // Configure the description object
-    std::string textDescription;
-    sf::Text description;
-    description.setFont(font);
-    description.setCharacterSize(24);
-    description.setColor(sf::Color::Black);
-    description.setPosition(sf::Vector2f(20, 10));
+    // Configure the countriesNumber object
+    std::string textCountriesNumber;
+    sf::Text countriesNumber;
+    countriesNumber.setFont(font);
+    countriesNumber.setCharacterSize(24);
+    countriesNumber.setColor(sf::Color::Black);
+    countriesNumber.setPosition(sf::Vector2f(20, 10));
 
-    // Configure the dataInput object
-    sf::Text dataInput;
-    dataInput.setFont(font);
-    dataInput.setCharacterSize(18);
-    dataInput.setColor(sf::Color::Black);
-    dataInput.setPosition(sf::Vector2f(20, 52));
+    // Configure the userInteraction object
+    sf::Text userInteraction;
+    userInteraction.setFont(font);
+    userInteraction.setCharacterSize(18);
+    userInteraction.setColor(sf::Color::Black);
+    userInteraction.setPosition(sf::Vector2f(20, 52));
 
-    textDescription = "Graphs";
+    //Variable for getting the desired data for the new Vertex
+    std::string textUserInteraction = "";
+
+    textCountriesNumber = "There are " + std::to_string(graph->getVerticesLength()) + " countries.";
+    textUserInteraction = "Click wherever you want a new country or click the button path";
 
     //Variable for accepting the input text
     bool createAVertex = false;
@@ -77,13 +81,10 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     //Variable for getting the position of the Mouse when clicked
     sf::Vector2i position;
 
-    //Variable for getting the desired data for the new Vertex
-    std::string inputData = "";
-
     while (window->isOpen())
     {
-        description.setString(textDescription);
-        dataInput.setString(inputData);
+        countriesNumber.setString(textCountriesNumber);
+        userInteraction.setString(textUserInteraction);
 
         sf::Event event;
         while (window->pollEvent(event))
@@ -105,8 +106,8 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                       position = sf::Mouse::getPosition(*window);
 
                       // Change the text displayed
-                      textDescription = "Enter the data for the Vertex: ";
-
+                      textCountriesNumber = "Enter the data for the Vertex: ";
+                      textUserInteraction = "";
                       // Toggle the boolean so it accepts input
                       createAVertex = true;
                 }
@@ -115,17 +116,24 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                 case sf::Event::TextEntered:
                     if ( createAVertex )
                     {
+                        //Delete the last character
+                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace)){
+                            if(textUserInteraction.length() > 0){
+                                textUserInteraction.pop_back();
+                            }
+                        }else
                         // it's a printable char
                         if ( event.text.unicode < 0x80 ) {
                             char letter = (char) event.text.unicode;
-                            inputData += letter;
+                            textUserInteraction += letter;
                         }
                         //Submit the entered text
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return)){
-                            createVertex(position, graph, window, inputData);
+                            createVertex(position, graph, window, textUserInteraction);
                             createAVertex = false;
-                            inputData = "";
-                            textDescription = "Graphs";
+                            textUserInteraction = "";
+                            textCountriesNumber = "There are " + std::to_string(graph->getVerticesLength()) + " countries.";
+                            textUserInteraction = "Click wherever you want a new country or click the button path";
                         }
                     }
                     break;
@@ -138,8 +146,8 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
         rec.setFillColor(sf::Color::White);
         window->draw(rec);
 
-        window->draw(description);
-        window->draw(dataInput);
+        window->draw(countriesNumber);
+        window->draw(userInteraction);
 
         window->display();
 
@@ -147,7 +155,7 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
 
 }
 
-void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & inputData){
+void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & textUserInteraction){
 
     int x = position.x - 10;
     int y = position.y - 10;
@@ -169,7 +177,7 @@ void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf:
     name.setCharacterSize(12);
     name.setColor(sf::Color(33,53,156));
     name.setPosition(sf::Vector2f(x-5, y-15));
-    name.setString(inputData);
+    name.setString(textUserInteraction);
     window->draw(name);
 
     //Rectangle for clearing the title
@@ -178,7 +186,7 @@ void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf:
     rec.setFillColor(sf::Color::White);
     window->draw(rec);
 
-    Vertex<std::string, float> * newVertex = new Vertex<std::string, float>(inputData);
+    Vertex<std::string, float> * newVertex = new Vertex<std::string, float>(textUserInteraction);
     newVertex->setX(x);
     newVertex->setY(y);
 

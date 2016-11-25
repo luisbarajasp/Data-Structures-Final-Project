@@ -43,7 +43,7 @@ class Graph {
         Vertex<T, W> * getStart() { return start; }
         void setStart(Vertex<T, W> * _start) { start = _start; }
         void setStart(const T & _data);
-        int getLengthVertices() { return vertices.getLength(); }
+        int getVerticesLength() { return vertices.getLength(); }
         void printBreadthFirst();
         void printDepthFirst();
         LinkedList<Vertex<T, W> *> * findPath(Vertex<T, W> * origin, Vertex<T, W> * destination);
