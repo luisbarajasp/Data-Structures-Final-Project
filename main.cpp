@@ -15,7 +15,7 @@
 
 void configureSFML(sf::VideoMode *desktop, sf::RenderWindow *window);
 void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph);
-void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string *textDescription);
+void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & inputData);
 
 int main(){
 
@@ -64,6 +64,15 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
 
     textDescription = "Graphs";
 
+    //Variable for accepting the input text
+    bool createAVertex = false;
+
+    //Variable for getting the position of the Mouse when clicked
+    sf::Vector2i position;
+
+    //Variable for getting the desired data for the new Vertex
+    std::string inputData = "";
+
     while (window->isOpen())
     {
         description.setString(textDescription);
@@ -71,15 +80,59 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
         sf::Event event;
         while (window->pollEvent(event))
         {
-            if (event.type == sf::Event::Closed){
-                std::cout << "Window closed" << '\n';
-                window->close();
-            }
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-                // get the local mouse position (relative to window)
-                sf::Vector2i position = sf::Mouse::getPosition(*window);
-                //Create and draw the new Vertex
-                createVertex(position, graph, window, &textDescription);
+            switch (event.type){
+                case sf::Event::Closed:
+                    std::cout << "Window closed" << '\n';
+                    window->close();
+                    break;
+                case sf::Event::MouseButtonReleased:
+                {
+                    std::cout << "Clicked!" << '\n';
+
+                    /*if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                        && Mouse::getPosition(window).x >= rect1.getPosition().x
+                        && Mouse::getPosition(window).x <= rect1.getPosition().x + rect1.getSize().x
+                        && Mouse::getPosition(window).y >= rect1.getPosition().y
+                        && Mouse::getPosition(window).y <= rect1.getPosition().y + rect1.getSize().y)*/
+
+                      // get the local mouse position (relative to window)
+                      position = sf::Mouse::getPosition(*window);
+
+                      // Change the text displayed
+                      textDescription = "Enter the data for the Vertex: ";
+
+                      //Draw the vertex in the place pressed
+                      int x = position.x - 10;
+                      int y = position.y - 10;
+
+                      sf::CircleShape circle(10.f);
+                      circle.setFillColor(sf::Color(33,53,156));
+                      circle.setPosition(x,y);
+
+                      window->draw(circle);
+
+                      // Toggle the boolean so it accepts input
+                      createAVertex = true;
+                }
+
+                break;
+                case sf::Event::TextEntered:
+                    if ( createAVertex )
+                    {
+                        // it's a printable char
+                        if ( event.text.unicode < 0x80 ) {
+                            char letter = (char) event.text.unicode;
+                            inputData += letter;
+                            std::cout << inputData << '\n';
+                        }
+                        //Submit the entered text
+                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return)){
+                            createVertex(position, graph, window, inputData);
+                            createAVertex = false;
+                            inputData = "";
+                        }
+                    }
+                    break;
             }
         }
 
@@ -96,12 +149,10 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
 
 }
 
-void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string *textDescription){
+void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & inputData){
 
     int x = position.x - 10;
     int y = position.y - 10;
-
-    std::cout << "( " << x << " , " << y << " )" << '\n';
 
     //Rectangle for clearing the title
     sf::RectangleShape rec(sf::Vector2f(1024,80));
@@ -109,22 +160,14 @@ void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf:
     rec.setFillColor(sf::Color::White);
     window->draw(rec);
 
-    // Change the text displayed
-    *textDescription = "Enter the data for the Vertex: ";
-
-    std::string data = "New";
-
-    Vertex<std::string, float> * newVertex = new Vertex<std::string, float>("Hello");
+    Vertex<std::string, float> * newVertex = new Vertex<std::string, float>(inputData);
     newVertex->setX(x);
     newVertex->setY(y);
 
     graph->addVertex(newVertex);
 
-    sf::CircleShape circle(10.f);
-    circle.setFillColor(sf::Color(33,53,156));
-    circle.setPosition(x,y);
+    graph->printBreadthFirst();
 
-    window->draw(circle);
 }
 
 /* Graph<std::string, float> graph;
