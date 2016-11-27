@@ -239,17 +239,15 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     }
 
 }
-//Method fofr creating and drawing a new vertex
+//Method for creating and drawing a new vertex
 void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & textUserInteraction){
 
     int x = position.x - 10;
     int y = position.y - 10;
 
-    std::cout << textUserInteraction<<":"<<"("<<x<<","<<y<<")" << '\n';
-
     //Draw the vertex in the place pressed
     sf::CircleShape circle(10.f);
-    circle.setFillColor(sf::Color(33,53,156));
+    circle.setFillColor(sf::Color::White);
     circle.setPosition(x,y);
     window->draw(circle);
 
@@ -261,7 +259,7 @@ void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf:
     sf::Text name;
     name.setFont(font);
     name.setCharacterSize(12);
-    name.setColor(sf::Color(33,53,156));
+    name.setColor(sf::Color::White);
     name.setPosition(sf::Vector2f(x-5, y-15));
     name.setString(textUserInteraction);
     window->draw(name);
@@ -335,31 +333,14 @@ void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
     int delta_y = y_i - y_o;
     float angleToRotate = 0;
 
-    std::cout << "Delta x:"<<delta_x << '\n';
-    std::cout << "Delta y:"<<delta_y << '\n';
-
-
-    /*if(delta_x < 0 && delta_y > 0){
-        angleToRotate = 90;
-        delta_x *= -1;
-    }else if(delta_x < 0 && delta_y < 0){
-        angleToRotate = 90;
-        delta_x *= -1;
-        delta_y *= -1;
-    }else if(delta_x > 0 && delta_y < 0){
-        angleToRotate = 270;
-        delta_y *= -1;
-    }*/
-
     angleToRotate = (atan2 (delta_y,delta_x) * 180) / PI;
 
-    std::cout << angleToRotate << '\n';
-
+    //The length of the edge
     float hypotenuse = delta_y / sin (angleToRotate*PI/180);
 
     sf::RectangleShape line(sf::Vector2f(hypotenuse,5));
     line.setPosition(x_o + 7.5,y_o + 12.5);
-    line.setFillColor(sf::Color(33,53,156));
+    line.setFillColor(sf::Color::White);
     line.setRotation(angleToRotate);
 
     window->draw(line);

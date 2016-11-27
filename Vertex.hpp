@@ -35,13 +35,14 @@ class Vertex {
         LinkedList<Edge<T, W> *> * getEdges() { return &edges; }
         void addEdge(Edge<T, W> * _edge);
 
+        template <class R, class S>
+        friend std::ostream & operator<< (std::ostream & stream, const Vertex<R, S> & vertex);
+
+        //Added
         void setX(int _x) { x = _x; }
         int getX() { return x; }
         void setY(int _y) { y = _y; }
         int getY() { return y; }
-
-        template <class R, class S>
-        friend std::ostream & operator<< (std::ostream & stream, const Vertex<R, S> & vertex);
 };
 
 template <class T, class W>
