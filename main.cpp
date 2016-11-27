@@ -16,8 +16,8 @@
 void configureSFML(sf::VideoMode *desktop, sf::RenderWindow *window);
 void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph);
 void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & textUserInteraction);
-Vertex<std::string, float> * getClickedVertex(sf::RenderWindow *window, Graph<std::string, float> *graph, sf::Vector2i & position);
-void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, sf::Vector2i & position);
+Vertex<std::string, float> * getClickedVertex(Graph<std::string, float> *graph, sf::Vector2i & position);
+void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vertex<std::string, float> * clickedVertex, std::string & textUserInteraction);
 
 int main(){
 
@@ -96,9 +96,13 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     //Variables for accepting & assigning the input text
     bool createAVertex = false;
     bool createAnEdge = false;
+    bool setEdgeCost = false;
 
     //Variable for getting the position of the Mouse when clicked
     sf::Vector2i position;
+
+    //Variable for saving the clicked Vertex
+    Vertex<std::string, float> * clickedVertex;
 
     while (window->isOpen())
     {
@@ -117,7 +121,18 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                 {
                     if(createAnEdge){
                         position = sf::Mouse::getPosition(*window);
-                        createEdge(window,graph,position);
+                        clickedVertex = getClickedVertex(graph, position);
+                        //Only set the cost if there was a clicked vertex
+                        if (clickedVertex->getData() != ""){
+                            createAnEdge = false;
+                            setEdgeCost = true;
+                            // Change the text displayed
+                            textCountriesNumber = "Enter the cost for the connection: ";
+                            textUserInteraction = "";
+                        }else{
+                            textCountriesNumber = "No country was selected, try again";
+                            textUserInteraction = "";
+                        }
                     }else{
                         //Check if the click is in the title bar
                         if (sf::Mouse::getPosition(*window).y <= 80){
@@ -126,7 +141,9 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                                 && sf::Mouse::getPosition(*window).x <= pathBackground.getPosition().x + pathBackground.getSize().x
                                 && sf::Mouse::getPosition(*window).y >= pathBackground.getPosition().y
                                 && sf::Mouse::getPosition(*window).y <= pathBackground.getPosition().y + pathBackground.getSize().y){
+
                                     std::cout << "Path clicked!" << '\n';
+
                                 }
                         }else{
 
@@ -180,6 +197,27 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                             createAnEdge = false;
                             textCountriesNumber = "There are " + std::to_string(graph->getVerticesLength()) + " countries.";
                             textUserInteraction = "Click wherever you want a new country or click the button path";
+                        }
+                    }else if (setEdgeCost){
+                        //Delete the last character
+                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace)){
+                            if(textUserInteraction.length() > 0){
+                                textUserInteraction.pop_back();
+                            }
+                        }else
+                        // it's a printable char
+                        if ( event.text.unicode < 0x80 ) {
+                            char letter = (char) event.text.unicode;
+                            textUserInteraction += letter;
+                        }
+                        //Submit the entered text
+                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return)){
+                            createEdge(window, graph, clickedVertex, textUserInteraction);
+                            createAVertex = false;
+                            setEdgeCost = false;
+                            createAnEdge = true;
+                            textCountriesNumber = "Select the countries to make a connection";
+                            textUserInteraction = "Press escape when you are finished";
                         }
                     }
                     break;
@@ -242,7 +280,7 @@ void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf:
 
 }
 // Method for getting the clicked Vertex
-Vertex<std::string, float> * getClickedVertex(sf::RenderWindow *window, Graph<std::string, float> *graph, sf::Vector2i & position){
+Vertex<std::string, float> * getClickedVertex(Graph<std::string, float> *graph, sf::Vector2i & position){
     LinkedList<Vertex<std::string, float> *> * vertices = graph->getVerticesList();
     Node<Vertex<std::string, float> *> * vertexNode = vertices->getHead();
 
@@ -254,16 +292,16 @@ Vertex<std::string, float> * getClickedVertex(sf::RenderWindow *window, Graph<st
 
         std::cout << "Entered" << '\n';
 
-        sf::RectangleShape rec1(sf::Vector2f(20,20));
+        /*sf::RectangleShape rec1(sf::Vector2f(20,20));
         rec1.setPosition(token->getX(),token->getY());
         rec1.setFillColor(sf::Color::Black);
 
-        window->draw(rec1);
+        window->draw(rec1);*/
 
         if(position.x >= token->getX()
-            && position.x <= token->getX() + 10
+            && position.x <= token->getX() + 20
             && position.y >= token->getY()
-            && position.y <= token->getY() + 10){
+            && position.y <= token->getY() + 20){
 
             return token;
         }
@@ -279,11 +317,14 @@ Vertex<std::string, float> * getClickedVertex(sf::RenderWindow *window, Graph<st
 }
 
 //Method for creating and drawing the new edge
-void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, sf::Vector2i & position){
+void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vertex<std::string, float> * clickedVertex, std::string & textUserInteraction){
     Vertex<std::string, float> * originVertex = graph->getVerticesList()->getDataAtTail();
-    Vertex<std::string, float> * destinationVertex = getClickedVertex(window, graph, position);
+    Vertex<std::string, float> * destinationVertex = clickedVertex;
 
-    //std::cout << destinationVertex->getData() << '\n';
+    std::cout << destinationVertex->getData() << '\n';
+
+    
+
 }
 
 
