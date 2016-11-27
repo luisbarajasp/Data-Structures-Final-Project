@@ -12,6 +12,9 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "Graph.hpp"
+#include <math.h>
+
+#define PI 3.141592
 
 void configureSFML(sf::VideoMode *desktop, sf::RenderWindow *window);
 void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph);
@@ -242,6 +245,7 @@ void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf:
     int x = position.x - 10;
     int y = position.y - 10;
 
+    std::cout << textUserInteraction<<":"<<"("<<x<<","<<y<<")" << '\n';
 
     //Draw the vertex in the place pressed
     sf::CircleShape circle(10.f);
@@ -322,29 +326,43 @@ void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
     graph->addEdge(originVertex,destinationVertex,cost);
 
     //Get the coordinates of the vertices
-    float x_o = originVertex->getX() + 7.5;
-    float y_o = originVertex->getY() + 7.5;
-    float x_i = destinationVertex->getX() + 7.5;
-    float y_i = destinationVertex->getY() + 7.5;
+    float x_o = originVertex->getX();
+    float y_o = originVertex->getY();
+    float x_i = destinationVertex->getX();
+    float y_i = destinationVertex->getY();
 
-    // create a quad
-    sf::VertexArray quad(sf::Quads, 4);
+    int delta_x = x_i - x_o;
+    int delta_y = y_i - y_o;
+    float angleToRotate = 0;
 
-    // define it as a rectangle, located at (10, 10) and with size 100x100
-    quad[0].position = sf::Vector2f(x_o, y_o);
-    quad[1].position = sf::Vector2f(x_i, y_i);
-    quad[2].position = sf::Vector2f(x_i + 5, y_i + 5);
-    quad[3].position = sf::Vector2f(x_o + 5, y_o + 5);
-
-    //Set the color for the line, it has to set by each vertex in the quad
-    for (int i = 0; i < 4; i++) {
-
-        quad[i].color = sf::Color(33,53,156);
-
-    }
+    std::cout << "Delta x:"<<delta_x << '\n';
+    std::cout << "Delta y:"<<delta_y << '\n';
 
 
-    window->draw(quad);
+    /*if(delta_x < 0 && delta_y > 0){
+        angleToRotate = 90;
+        delta_x *= -1;
+    }else if(delta_x < 0 && delta_y < 0){
+        angleToRotate = 90;
+        delta_x *= -1;
+        delta_y *= -1;
+    }else if(delta_x > 0 && delta_y < 0){
+        angleToRotate = 270;
+        delta_y *= -1;
+    }*/
+
+    angleToRotate = (atan2 (delta_y,delta_x) * 180) / PI;
+
+    std::cout << angleToRotate << '\n';
+
+    float hypotenuse = delta_y / sin (angleToRotate*PI/180);
+
+    sf::RectangleShape line(sf::Vector2f(hypotenuse,5));
+    line.setPosition(x_o + 7.5,y_o + 12.5);
+    line.setFillColor(sf::Color(33,53,156));
+    line.setRotation(angleToRotate);
+
+    window->draw(line);
 
 }
 
