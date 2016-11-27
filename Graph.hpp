@@ -43,13 +43,35 @@ class Graph {
         Vertex<T, W> * getStart() { return start; }
         void setStart(Vertex<T, W> * _start) { start = _start; }
         void setStart(const T & _data);
-        int getVerticesLength() { return vertices.getLength(); }
         void printBreadthFirst();
         void printDepthFirst();
         LinkedList<Vertex<T, W> *> * findPath(Vertex<T, W> * origin, Vertex<T, W> * destination);
         LinkedList<Vertex<T, W> *> * findPath(const T & origin, const T & destination);
         void printPath(LinkedList<Vertex<T, W> *> * path);
+        //Added
+        int getVerticesLength() { return vertices.getLength(); }
+        LinkedList<Vertex<T, W> *> * getVerticesList() { return &vertices; }
+        Vertex<T, W> * getVertex(const T & _data);
+
 };
+
+template <class T, class W>
+Vertex<T, W> * Graph<T, W>::getVertex(const T & _data){
+    Vertex<T, W> * current_vertex = nullptr;
+
+    Node<Vertex<T, W> *> * node = vertices.getHead();
+    // Look for the vertex that contain the data specified
+    while (node != nullptr)
+    {
+        current_vertex = node->getData();
+        if (current_vertex->getData() == _data)
+            return current_vertex;
+    }
+
+    current_vertex = nullptr;
+
+    return current_vertex;
+}
 
 template <class T, class W>
 Graph<T, W>::~Graph()

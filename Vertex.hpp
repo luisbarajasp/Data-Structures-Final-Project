@@ -72,7 +72,7 @@ void Vertex<T, W>::addEdge(Edge<T, W> * _edge)
 template <class T, class W>
 std::ostream & operator<< (std::ostream & stream, const Vertex<T, W> & vertex)
 {
-    stream << "Data: " << vertex.data << " | " << (vertex.visited ? "" : "not ") << "visited" << " | (" << x << "," << y << ")";
+    stream << "Data: " << vertex.data << " | " << (vertex.visited ? "" : "not ") << "visited" << " | (" << vertex.x << "," << vertex.y << ")";
     return stream;
 }
 

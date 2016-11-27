@@ -1,6 +1,6 @@
 /*
     Node class to store integers in a linked list
-    
+
     Gilberto Echeverria
     gilecheverria@yahoo.com
 */
