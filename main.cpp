@@ -19,8 +19,10 @@
 void configureSFML(sf::VideoMode *desktop, sf::RenderWindow *window);
 void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph);
 void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & textUserInteraction);
+void drawVertex(sf::RenderWindow *window, int & x, int & y, std::string & textUserInteraction, sf::Color color);
 Vertex<std::string, float> * getClickedVertex(Graph<std::string, float> *graph, sf::Vector2i & position);
 void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vertex<std::string, float> * clickedVertex, std::string & textUserInteraction);
+void drawEdge(sf::RenderWindow *window, Vertex<std::string, float> * originVertex, Vertex<std::string, float> * destinationVertex, sf::Color color);
 
 int main(){
 
@@ -100,12 +102,15 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     bool createAVertex = false;
     bool createAnEdge = false;
     bool setEdgeCost = false;
+    bool createAPath = false;
 
     //Variable for getting the position of the Mouse when clicked
     sf::Vector2i position;
 
-    //Variable for saving the clicked Vertex
+    //Variable for saving the clicked Vertices
     Vertex<std::string, float> * clickedVertex;
+    Vertex<std::string, float> * originVertex;
+    Vertex<std::string, float> * destinationVertex;
 
     while (window->isOpen())
     {
@@ -136,6 +141,32 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                             textCountriesNumber = "No country was selected, try again";
                             textUserInteraction = "";
                         }
+                    }else if (createAPath){
+                        position = sf::Mouse::getPosition(*window);
+                        originVertex = getClickedVertex(graph, position);
+                        //Only set the cost if there was a clicked vertex
+                        if (originVertex != nullptr){
+                            // Change the text displayed
+                            textCountriesNumber = "Select the destination";
+                            textUserInteraction = "";
+
+                            position = sf::Mouse::getPosition(*window);
+                            destinationVertex = getClickedVertex(graph, position);
+                            //Only set the cost if there was a clicked vertex
+                            if (destinationVertex != nullptr){
+                                // Change the text displayed
+                                textCountriesNumber = "Select the destination";
+                                textUserInteraction = "";
+
+                            }else{
+                                textCountriesNumber = "No country was selected, try again";
+                                textUserInteraction = "";
+                            }
+
+                        }else{
+                            textCountriesNumber = "No country was selected, try again";
+                            textUserInteraction = "";
+                        }
                     }else{
                         //Check if the click is in the title bar
                         if (sf::Mouse::getPosition(*window).y <= 80){
@@ -146,6 +177,11 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                                 && sf::Mouse::getPosition(*window).y <= pathBackground.getPosition().y + pathBackground.getSize().y){
 
                                     std::cout << "Path clicked!" << '\n';
+                                    createAPath = true;
+
+                                    // Change the text displayed
+                                    textCountriesNumber = "Select the origin";
+                                    textUserInteraction = "";
 
                                 }
                         }else{
@@ -239,15 +275,26 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     }
 
 }
-//Method for creating and drawing a new vertex
+//Method for creating a new vertex
 void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & textUserInteraction){
 
     int x = position.x - 10;
     int y = position.y - 10;
+    // Add vertex ti graph
+    Vertex<std::string, float> * newVertex = new Vertex<std::string, float>(textUserInteraction);
+    newVertex->setX(x);
+    newVertex->setY(y);
 
+    graph->addVertex(newVertex);
+
+    drawVertex(window,x,y,textUserInteraction,sf::Color::White);
+}
+
+//Method for drawing a vertex in SFML
+void drawVertex(sf::RenderWindow *window, int & x, int & y, std::string & nameText, sf::Color color){
     //Draw the vertex in the place pressed
     sf::CircleShape circle(10.f);
-    circle.setFillColor(sf::Color::White);
+    circle.setFillColor(color);
     circle.setPosition(x,y);
     window->draw(circle);
 
@@ -259,24 +306,12 @@ void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf:
     sf::Text name;
     name.setFont(font);
     name.setCharacterSize(12);
-    name.setColor(sf::Color::White);
+    name.setColor(color);
     name.setPosition(sf::Vector2f(x-5, y-15));
-    name.setString(textUserInteraction);
+    name.setString(nameText);
     window->draw(name);
-
-    //Rectangle for clearing the title
-    sf::RectangleShape rec(sf::Vector2f(1024,80));
-    rec.setPosition(0,0);
-    rec.setFillColor(sf::Color::White);
-    window->draw(rec);
-
-    Vertex<std::string, float> * newVertex = new Vertex<std::string, float>(textUserInteraction);
-    newVertex->setX(x);
-    newVertex->setY(y);
-
-    graph->addVertex(newVertex);
-
 }
+
 // Method for getting the clicked Vertex
 Vertex<std::string, float> * getClickedVertex(Graph<std::string, float> *graph, sf::Vector2i & position){
     LinkedList<Vertex<std::string, float> *> * vertices = graph->getVerticesList();
@@ -312,7 +347,7 @@ Vertex<std::string, float> * getClickedVertex(Graph<std::string, float> *graph, 
 
 }
 
-//Method for creating and drawing the new edge
+//Method for creating the new edge
 void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vertex<std::string, float> * clickedVertex, std::string & textUserInteraction){
     Vertex<std::string, float> * originVertex = graph->getVerticesList()->getDataAtTail();
     Vertex<std::string, float> * destinationVertex = clickedVertex;
@@ -323,6 +358,12 @@ void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
 
     graph->addEdge(originVertex,destinationVertex,cost);
 
+    drawEdge(window,originVertex,destinationVertex,sf::Color::White);
+
+}
+
+//Method for drawing an edge in SFML
+void drawEdge(sf::RenderWindow *window, Vertex<std::string, float> * originVertex, Vertex<std::string, float> * destinationVertex, sf::Color color){
     //Get the coordinates of the vertices
     float x_o = originVertex->getX();
     float y_o = originVertex->getY();
@@ -340,11 +381,10 @@ void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
 
     sf::RectangleShape line(sf::Vector2f(hypotenuse,5));
     line.setPosition(x_o + 7.5,y_o + 12.5);
-    line.setFillColor(sf::Color::White);
+    line.setFillColor(color);
     line.setRotation(angleToRotate);
 
     window->draw(line);
-
 }
 
 
