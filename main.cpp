@@ -123,7 +123,7 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                         position = sf::Mouse::getPosition(*window);
                         clickedVertex = getClickedVertex(graph, position);
                         //Only set the cost if there was a clicked vertex
-                        if (clickedVertex->getData() != ""){
+                        if (clickedVertex != nullptr){
                             createAnEdge = false;
                             setEdgeCost = true;
                             // Change the text displayed
@@ -193,7 +193,6 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                         }
                     }else if (createAnEdge){
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)){
-                            std::cout << "No more edges" << '\n';
                             createAnEdge = false;
                             textCountriesNumber = "There are " + std::to_string(graph->getVerticesLength()) + " countries.";
                             textUserInteraction = "Click wherever you want a new country or click the button path";
@@ -273,9 +272,6 @@ void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf:
     newVertex->setX(x);
     newVertex->setY(y);
 
-    std::cout << "("<<x<<","<<y<<")" << '\n';
-
-
     graph->addVertex(newVertex);
 
 }
@@ -289,8 +285,6 @@ Vertex<std::string, float> * getClickedVertex(Graph<std::string, float> *graph, 
     while (vertexNode != nullptr) {
 
         token = vertexNode->getData();
-
-        std::cout << "Entered" << '\n';
 
         /*sf::RectangleShape rec1(sf::Vector2f(20,20));
         rec1.setPosition(token->getX(),token->getY());
@@ -309,7 +303,7 @@ Vertex<std::string, float> * getClickedVertex(Graph<std::string, float> *graph, 
         vertexNode = vertexNode->getNext();
     }
 
-    token->setData("");
+    token = nullptr;
 
 
     return token;
@@ -321,9 +315,36 @@ void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
     Vertex<std::string, float> * originVertex = graph->getVerticesList()->getDataAtTail();
     Vertex<std::string, float> * destinationVertex = clickedVertex;
 
-    std::cout << destinationVertex->getData() << '\n';
+    //std::cout << destinationVertex->getData() << '\n';
 
-    
+    float cost = std::stof(textUserInteraction);
+
+    graph->addEdge(originVertex,destinationVertex,cost);
+
+    //Get the coordinates of the vertices
+    float x_o = originVertex->getX() + 7.5;
+    float y_o = originVertex->getY() + 7.5;
+    float x_i = destinationVertex->getX() + 7.5;
+    float y_i = destinationVertex->getY() + 7.5;
+
+    // create a quad
+    sf::VertexArray quad(sf::Quads, 4);
+
+    // define it as a rectangle, located at (10, 10) and with size 100x100
+    quad[0].position = sf::Vector2f(x_o, y_o);
+    quad[1].position = sf::Vector2f(x_i, y_i);
+    quad[2].position = sf::Vector2f(x_i + 5, y_i + 5);
+    quad[3].position = sf::Vector2f(x_o + 5, y_o + 5);
+
+    //Set the color for the line, it has to set by each vertex in the quad
+    for (int i = 0; i < 4; i++) {
+
+        quad[i].color = sf::Color(33,53,156);
+
+    }
+
+
+    window->draw(quad);
 
 }
 
