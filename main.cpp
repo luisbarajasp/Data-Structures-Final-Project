@@ -267,7 +267,9 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                             //Restart the scene as was
                             window->clear(sf::Color::White);
                             window->draw(background);
-
+                            //Draw all the vertices & edges in white again
+                            LinkedList<Vertex<std::string, float> *> * vertices = graph->getVerticesList();
+                            int length = vertices->getLength();
                         }
                     }
                     break;

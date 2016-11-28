@@ -52,6 +52,7 @@ class Graph {
         int getVerticesLength() { return vertices.getLength(); }
         LinkedList<Vertex<T, W> *> * getVerticesList() { return &vertices; }
         Vertex<T, W> * getVertex(const T & _data);
+        LinkedList<Edge<T, W> *> * getEdgesList() { return &edges; }
 
 };
 
