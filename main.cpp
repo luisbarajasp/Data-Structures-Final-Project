@@ -24,6 +24,7 @@ Vertex<std::string, float> * getClickedVertex(Graph<std::string, float> *graph, 
 void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vertex<std::string, float> * clickedVertex, std::string & textUserInteraction);
 void drawEdge(sf::RenderWindow *window, Vertex<std::string, float> * originVertex, Vertex<std::string, float> * destinationVertex, sf::Color color);
 void createPath(sf::RenderWindow *window, Graph<std::string, float> *graph, Vertex<std::string, float> * originVertex, Vertex<std::string, float> * destinationVertex, std::string *textCountriesNumber, std::string *textUserInteraction);
+void redrawScene(sf::RenderWindow *window, Graph<std::string, float> *graph);
 
 int main(){
 
@@ -264,12 +265,14 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                             textCountriesNumber = "There are " + std::to_string(graph->getVerticesLength()) + " countries.";
                             textUserInteraction = "Click wherever you want a new country or click the button path";
 
-                            //Restart the scene as was
+                            //Restart the scene
                             window->clear(sf::Color::White);
                             window->draw(background);
-                            //Draw all the vertices & edges in white again
-                            LinkedList<Vertex<std::string, float> *> * vertices = graph->getVerticesList();
-                            int length = vertices->getLength();
+                            redrawScene(window,graph);
+
+                            originVertex = nullptr;
+                            destinationVertex = nullptr;
+
                         }
                     }
                     break;
@@ -425,6 +428,8 @@ void createPath(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
         vertex = vertexNode->getData();
         nextVertex = nextVertexNode->getData();
 
+        drawEdge(window,vertex,nextVertex,sf::Color(33,53,156));
+
         if(i == 0){
             //Draw the vertex on top black
 
@@ -452,7 +457,6 @@ void createPath(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
 
         }
 
-        drawEdge(window,vertex,nextVertex,sf::Color(33,53,156));
         vertexNode = vertexNode->getNext();
         nextVertexNode = nextVertexNode->getNext();
         i++;
@@ -462,6 +466,47 @@ void createPath(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
 
     *textCountriesNumber = "The cheapest path to follow is: " + pathInText;
     *textUserInteraction = "Press escape to create a new path or create a new country";
+
+    delete path;
+
+}
+//Method for redrawing the scene without any paths
+void redrawScene(sf::RenderWindow *window, Graph<std::string, float> *graph){
+
+    //Draw all the vertices & edges in white again
+    LinkedList<Vertex<std::string, float> *> * vertices = graph->getVerticesList();
+    int lengthVertices = vertices->getLength();
+    Node<Vertex<std::string, float> *> * vertexNode = vertices->getHead();
+
+    Vertex<std::string, float> * vertex;
+
+    while(vertexNode != nullptr){
+        vertex = vertexNode->getData();
+
+        drawVertex(window,vertex,sf::Color::White);
+
+        vertexNode = vertexNode->getNext();
+    }
+
+    LinkedList<Edge<std::string, float> *> * edges = graph->getEdgesList();
+    int lengthEdges = edges->getLength();
+    Node<Edge<std::string, float> *> * edgeNode = edges->getHead();
+
+    Edge<std::string, float> * edge;
+
+    Vertex<std::string, float> * origin;
+    Vertex<std::string, float> * destination;
+
+    while(edgeNode != nullptr){
+        edge = edgeNode->getData();
+
+        origin = edge->getOrigin();
+        destination = edge->getDestination();
+
+        drawEdge(window,origin,destination,sf::Color::White);
+
+        edgeNode = edgeNode->getNext();
+    }
 
 }
 
