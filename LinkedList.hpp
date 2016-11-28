@@ -1,6 +1,6 @@
 /*
     Linked list template class
-    
+
     Gilberto Echeverria
     gilecheverria@yahoo.com
     11/10/2016
@@ -18,7 +18,7 @@ class LinkedList {
     protected:
         Node<T> * head = nullptr;
         int length = 0;
-        
+
         void printRecursive(Node<T> * _head);
         int searchRecursive(T data, Node<T> * _head, int index);
     public:
@@ -56,7 +56,7 @@ class LinkedList {
         // Overload the assignment operator
         // http://courses.cms.caltech.edu/cs11/material/cpp/donnie/cpp-ops.html
         LinkedList<T> & operator= (const LinkedList<T> & other);
-        
+
         template <class S>
         friend std::ostream & operator<< (std::ostream & stream, const LinkedList<S> & list);
 };
@@ -65,7 +65,7 @@ class LinkedList {
 template <class T>
 LinkedList<T>::~LinkedList()
 {
-    clear();
+    //clear();
 }
 
 ///// INSERT /////
@@ -185,7 +185,7 @@ void LinkedList<T>::insertOrdered (Node<T> * new_node)
         new_node->setNext(item);
         // Increase the size of the list
         length++;
-    } 
+    }
 }
 
 ///// DELETE /////
@@ -196,7 +196,7 @@ Node<T> * LinkedList<T>::deleteHead()
     // If the list was empty
     if(head == nullptr)
         return nullptr;
-        
+
     Node<T> * item = head;
     // Update the head in the list
     head = head->getNext();
@@ -268,7 +268,7 @@ Node<T> * LinkedList<T>::deleteFromPosition(int position)
             item = item->getNext();
         }
         // Update the previous node
-        previous->setNext(item->getNext());         
+        previous->setNext(item->getNext());
         // Disconnect item from the list
         item->setNext(nullptr);
         length--;
@@ -290,7 +290,7 @@ int LinkedList<T>::searchIterative(T data)
 {
     Node<T> * item = head;
     int counter = 0;
-    
+
     while (item != nullptr && item->getData() != data)
     {
         counter++;
@@ -374,7 +374,7 @@ void LinkedList<T>::printList()
 {
     Node<T> * item = head;
     int count = 0;
-    
+
     while (item != nullptr)
     {
         std::cout << "Item " << count++ << " = " << item->getData() << std::endl;
@@ -406,7 +406,7 @@ template <class T>
 std::ostream & operator<< (std::ostream & stream, const LinkedList<T> & list)
 {
     Node<T> * item = list.head;
-    
+
     stream << "[ ";
     while (item != nullptr)
     {
@@ -425,7 +425,7 @@ template <class T>
 void LinkedList<T>::clear()
 {
     Node<T> * item = head;
-    
+
     while (item != nullptr)
     {
         head = item->getNext();
