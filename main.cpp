@@ -28,7 +28,7 @@ void redrawScene(sf::RenderWindow *window, Graph<std::string, float> *graph);
 
 int main(){
 
-    //Global Variables
+    //Variables
     Graph<std::string, float> graph;
     sf::VideoMode desktop;
     sf::RenderWindow window;
@@ -38,7 +38,7 @@ int main(){
 
     return 0;
 }
-
+//Method for configuring the necessary elements to intializze SFML window
 void configureSFML(sf::VideoMode *desktop, sf::RenderWindow *window){
 
     *desktop = sf::VideoMode::getDesktopMode();
@@ -53,8 +53,8 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     {
         std::cout << "Error: loading the background image!" << '\n';
     }
-    sf::Sprite background(texture);
 
+    sf::Sprite background(texture);
     window->clear(sf::Color::White);
     // Set background to image
     window->draw(background);
@@ -97,6 +97,7 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     pathBtnTitle.setPosition(850,32);
     pathBtnTitle.setString("New Path");
 
+    //Assgint the default values to the strings that are displayed in the header
     textCountriesNumber = "There are " + std::to_string(graph->getVerticesLength()) + " countries.";
     textUserInteraction = "Click wherever you want a new country or click the button path";
 
@@ -105,6 +106,7 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
     bool createAnEdge = false;
     bool setEdgeCost = false;
     bool createAPath = false;
+    bool waitingEsc = false;
 
     //Variable for getting the position of the Mouse when clicked
     sf::Vector2i position;
@@ -116,6 +118,7 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
 
     while (window->isOpen())
     {
+        //Assign the string of the title
         countriesNumber.setString(textCountriesNumber);
         userInteraction.setString(textUserInteraction);
 
@@ -130,7 +133,9 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                 case sf::Event::MouseButtonReleased:
                 {
                     if(createAnEdge){
+                        //Position of the mouse in the window
                         position = sf::Mouse::getPosition(*window);
+                        //Get the clicked vertex in the window
                         clickedVertex = getClickedVertex(graph, position);
                         //Only set the cost if there was a clicked vertex
                         if (clickedVertex != nullptr){
@@ -140,12 +145,15 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                             textCountriesNumber = "Enter the cost for the connection: ";
                             textUserInteraction = "";
                         }else{
+                            // Change the text displayed
                             textCountriesNumber = "No country was selected, try again";
                             textUserInteraction = "";
                         }
                     }else if (createAPath){
                         if(originVertex == nullptr){
+                            //Position of the mouse in the window
                             position = sf::Mouse::getPosition(*window);
+                            //Get the clicked vertex in the window
                             originVertex = getClickedVertex(graph, position);
                             //Only request the destination if there was an origin selected
                             if (originVertex != nullptr){
@@ -161,7 +169,8 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                         }else{
                             position = sf::Mouse::getPosition(*window);
                             destinationVertex = getClickedVertex(graph, position);
-
+                            createAPath = false;
+                            waitingEsc = true;
                             //Only create a path if there was an origin and destination selected
                             if (destinationVertex != nullptr){
                                 createPath(window,graph,originVertex,destinationVertex,&textCountriesNumber,&textUserInteraction);
@@ -170,7 +179,7 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                                 textUserInteraction = "";
                             }
                         }
-                    }else{
+                    }else if (!waitingEsc){
                         //Check if the click is in the title bar
                         if (sf::Mouse::getPosition(*window).y <= 80){
                             //Check if button path was clicked
@@ -220,9 +229,9 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return)){
                             createVertex(position, graph, window, textUserInteraction);
                             createAVertex = false;
-                            //textCountriesNumber = "There are " + std::to_string(graph->getVerticesLength()) + " countries.";
-                            //textUserInteraction = "Click wherever you want a new country or click the button path";
+
                             if(graph->getVerticesLength() > 1){
+                                //Change the displayed text
                                 textCountriesNumber = "Select the countries to make a connection";
                                 textUserInteraction = "Press escape when you are finished";
                                 createAnEdge = true;
@@ -259,9 +268,11 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                             textCountriesNumber = "Select the countries to make a connection";
                             textUserInteraction = "Press escape when you are finished";
                         }
-                    }else if(createAPath){
+                    //Wait until the user click the key escape to reset the window and delete the path
+                    }else if(waitingEsc){
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)){
-                            createAPath = false;
+                            waitingEsc = false;
+
                             textCountriesNumber = "There are " + std::to_string(graph->getVerticesLength()) + " countries.";
                             textUserInteraction = "Click wherever you want a new country or click the button path";
 
@@ -269,7 +280,7 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                             window->clear(sf::Color::White);
                             window->draw(background);
                             redrawScene(window,graph);
-
+                            //Set the vetices to null
                             originVertex = nullptr;
                             destinationVertex = nullptr;
 
@@ -278,12 +289,11 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
                     break;
             }
         }
-        //Draw title section
+        //Draw background of the header section
         window->draw(rec);
-
+        //Draw the elements
         window->draw(countriesNumber);
         window->draw(userInteraction);
-
         window->draw(pathBackground);
         window->draw(pathBtnTitle);
 
@@ -294,21 +304,22 @@ void mainDraw(sf::RenderWindow *window, Graph<std::string, float> *graph){
 }
 //Method for creating a new vertex
 void createVertex(sf::Vector2i & position, Graph<std::string, float> *graph, sf::RenderWindow *window, std::string & textUserInteraction){
-
+    //Get the position coordinates
     int x = position.x - 10;
     int y = position.y - 10;
     // Add vertex ti graph
     Vertex<std::string, float> * newVertex = new Vertex<std::string, float>(textUserInteraction);
     newVertex->setX(x);
     newVertex->setY(y);
-
+    //Add vertex to the graph object
     graph->addVertex(newVertex);
-
+    //Call the metho to draw the vertex
     drawVertex(window,newVertex,sf::Color::White);
 }
 
 //Method for drawing a vertex in SFML
 void drawVertex(sf::RenderWindow *window, Vertex<std::string, float> * vertex, sf::Color color){
+    //Get the elements of the vertex
     int x = vertex->getX();
     int y = vertex->getY();
     std::string data = vertex->getData();
@@ -339,46 +350,37 @@ Vertex<std::string, float> * getClickedVertex(Graph<std::string, float> *graph, 
     Node<Vertex<std::string, float> *> * vertexNode = vertices->getHead();
 
     Vertex<std::string, float> * token;
-
+    //loop until the last element of the list
     while (vertexNode != nullptr) {
-
+        //Get the vertex in the node
         token = vertexNode->getData();
-
-        /*sf::RectangleShape rec1(sf::Vector2f(20,20));
-        rec1.setPosition(token->getX(),token->getY());
-        rec1.setFillColor(sf::Color::Black);
-
-        window->draw(rec1);*/
-
+        //Check if the position of the mouse and vertex merge
         if(position.x >= token->getX()
             && position.x <= token->getX() + 20
             && position.y >= token->getY()
             && position.y <= token->getY() + 20){
-
+            //Return the vertex clicked
             return token;
         }
-
+        //Get the next element in the list
         vertexNode = vertexNode->getNext();
     }
-
+    //If there was no vertex clicked return nullptr
     token = nullptr;
-
-
     return token;
 
 }
 
 //Method for creating the new edge
 void createEdge(sf::RenderWindow *window, Graph<std::string, float> *graph, Vertex<std::string, float> * clickedVertex, std::string & textUserInteraction){
+    //Store the origin and destination vertices
     Vertex<std::string, float> * originVertex = graph->getVerticesList()->getDataAtTail();
     Vertex<std::string, float> * destinationVertex = clickedVertex;
-
-    //std::cout << destinationVertex->getData() << '\n';
-
+    //transform the input from the user to float
     float cost = std::stof(textUserInteraction);
-
+    //Add the edge to the graph object
     graph->addEdge(originVertex,destinationVertex,cost);
-
+    //Call the method to draw the edge
     drawEdge(window,originVertex,destinationVertex,sf::Color::White);
 
 }
@@ -390,26 +392,26 @@ void drawEdge(sf::RenderWindow *window, Vertex<std::string, float> * originVerte
     float y_o = originVertex->getY();
     float x_i = destinationVertex->getX();
     float y_i = destinationVertex->getY();
-
+    //get the delta in the coordinates for using trigonometry
     int delta_x = x_i - x_o;
     int delta_y = y_i - y_o;
     float angleToRotate = 0;
-
+    //Get the angle to rotate the rectangle so it gets form the origin to the destination
     angleToRotate = (atan2 (delta_y,delta_x) * 180) / PI;
 
     //The length of the edge
     float hypotenuse = delta_y / sin (angleToRotate*PI/180);
-
+    //Draw the edge
     sf::RectangleShape line(sf::Vector2f(hypotenuse,5));
     line.setPosition(x_o + 7.5,y_o + 12.5);
     line.setFillColor(color);
     line.setRotation(angleToRotate);
-
     window->draw(line);
 }
 
 //Create a new path, and display it visually
 void createPath(sf::RenderWindow *window, Graph<std::string, float> *graph, Vertex<std::string, float> * originVertex, Vertex<std::string, float> * destinationVertex, std::string *textCountriesNumber, std::string *textUserInteraction){
+    //Get the path with djikstra method in the graph class
     LinkedList<Vertex<std::string, float> *> * path = graph->findPath(originVertex,destinationVertex);
     Node<Vertex<std::string, float> *> * vertexNode = path->getHead();
     Node<Vertex<std::string, float> *> * nextVertexNode = vertexNode->getNext();
@@ -423,7 +425,7 @@ void createPath(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
     std::string pathInText = "";
 
     std::string vertexData;
-
+    //Loop until the path the last element in path list
     while(nextVertexNode != nullptr){
         vertex = vertexNode->getData();
         nextVertex = nextVertexNode->getData();
@@ -431,8 +433,8 @@ void createPath(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
         drawEdge(window,vertex,nextVertex,sf::Color(33,53,156));
 
         if(i == 0){
+            //Origin Vertex
             //Draw the vertex on top black
-
             vertexData = vertex->getData();
             drawVertex(window,vertex,sf::Color::Black);
 
@@ -451,6 +453,7 @@ void createPath(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
             pathInText += "->";
 
         }else{
+            //Destinaiton Vertex
             //Draw the vertex in black
             drawVertex(window,nextVertex,sf::Color::Black);
             pathInText += vertexData;
@@ -463,7 +466,7 @@ void createPath(sf::RenderWindow *window, Graph<std::string, float> *graph, Vert
 
     }
 
-
+    //Change the displayed text
     *textCountriesNumber = "The cheapest path to follow is: " + pathInText;
     *textUserInteraction = "Press escape to create a new path or create a new country";
 
@@ -479,7 +482,7 @@ void redrawScene(sf::RenderWindow *window, Graph<std::string, float> *graph){
     Node<Vertex<std::string, float> *> * vertexNode = vertices->getHead();
 
     Vertex<std::string, float> * vertex;
-
+    
     while(vertexNode != nullptr){
         vertex = vertexNode->getData();
 
@@ -509,35 +512,3 @@ void redrawScene(sf::RenderWindow *window, Graph<std::string, float> *graph){
     }
 
 }
-
-
-/* Graph<std::string, float> graph;
-Vertex<std::string, float> * vertex;
-std::string cities[] = {"Mexico", "Guadalajara", "Puebla", "Queretaro", "Cuernavaca", "Veracruz", "Villahermosa", "Acapulco"};
-int num_cities = sizeof cities / sizeof cities[0];
-LinkedList<Vertex<std::string, float> *> * path = nullptr;
-
-for (int i=0; i<num_cities; i++)
-{
-    vertex = new Vertex<std::string, float>(cities[i]);
-    graph.addVertex(vertex);
-}
-
-graph.setStart("Mexico");
-graph.addEdge("Mexico", "Puebla", 2.8);
-graph.addEdge("Puebla", "Veracruz", 8.2);
-graph.addEdge("Veracruz", "Villahermosa", 5.2);
-graph.addEdge("Guadalajara", "Queretaro", 0.7);
-graph.addEdge("Mexico", "Cuernavaca", 6.8);
-graph.addEdge("Cuernavaca", "Acapulco", 6.8);
-graph.addEdge("Mexico", "Guadalajara", 3.2);
-graph.addEdge("Queretaro", "Mexico", 2.1);
-graph.addEdge("Queretaro", "Acapulco", 5.1);
-
-graph.printBreadthFirst();
-graph.printDepthFirst();
-
-path = graph.findPath("Mexico", "Villahermosa");
-std::cout << "Resulting path (Mexico to villahermosa):" << std::endl << "\t";
-graph.printPath(path);
-delete path; */
